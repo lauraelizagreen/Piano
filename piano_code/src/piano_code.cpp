@@ -11,6 +11,8 @@
 #include "IoTClassroom_CNM.h"
 #include <neopixel.h>
 #include <DFRobotDFPlayerMini.h>
+#include "Adafruit_GFX.h"
+#include "Adafruit_SSD1306.h"//specific OLED device
 
 DFRobotDFPlayerMini myDFPlayer;//not sure about what this is function to print?  is it necessary?
 void printDetail(uint8_t type, int value);
@@ -44,8 +46,17 @@ const int ABUTTON;
 const int BBUTTON;
 const int HIGHCBUTTON;
 
+const int OLED_RESET=-1;
+const int NUMFLAKES=10;//like const (datatype=int?) NUMFLAKES=10; what is this constant?
+const int XPOS=0; 
+const int  YPOS=1;
+const int DELTAY=2;
+
+
 int cBState, dBState, eBState, fBState, gBState, aBState, bBState, highCBState;
 bool onOff;
+
+char threeBlindMice[]={'THREE','BLIND','MICE'};
 
 int lightLevelC;
 int color;
@@ -54,6 +65,7 @@ unsigned int timerStart, currentTime;
 Servo cServo;//create object ...servo class built into photon library
 IoTTimer noteTimer;
 Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);
+Adafruit_SSD1306 display(OLED_RESET);
 Button cButton(CBUTTON);//declaring all objects
 Button dButton(DBUTTON);
 Button eButton(EBUTTON);
@@ -70,6 +82,9 @@ Button highCButton(HIGHCBUTTON);
 void setup() {
   Serial.begin(9600); 
   waitFor(Serial.isConnected,15000);
+
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with 12C address----not sure I understand this....??
+  display.clearDisplay();   // clears the screen and buffer
 /*
   WiFi.on();  //comment out this section when not at FUSE
   WiFi.clearCredentials();
@@ -117,6 +132,13 @@ void loop() {
   //delay(1000);
    //setHue(BULB,false,50,255); //how to turn off btw and timing (set timer with variable as target?  )
     //delay(5000);
+
+  display.setTextSize(1);//code to add my name and birthdate
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.printf(threeBlindMice[i]\n); //song lyrics here "three blind mice"? make into array and loop through with each note
+  display.display();
+  delay(1000); 
   }
 //to play mp3 tracks when button pressed
 //piano1 1st folder, note tracks in alpha order
