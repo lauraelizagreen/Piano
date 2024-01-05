@@ -24,7 +24,7 @@ const int BULB=2;
 const int PHOTODIODE=A1;
 const int SERVPIN=A2;//has to be PWM
 const int BUZZPIN= A5;//PWM?
-const int NOTELEVEL=100;//how much light photodiode has to have to trigger hue light
+const int NOTELEVEL=20;//how much light photodiode has to have to trigger hue light
 const int NOTEDELAY=2000;//will need to be varied, so maybe later not constant? how long light stays on
 const int DURATION=1000;//also may need to be varied-how long note plays, same as delay, so could be same variable
 const int PIXELCOUNT=1;//use one neopixel to check hue light when not at FUSE
@@ -37,7 +37,7 @@ const int ANOTE=220;//freq for A
 const int BNOTE=247;//freq for B
 const int HICNOTE=262;//freq for high C
 
-int lightLevelC;
+int lightLevelC;//for color of each note?
 int color;
 unsigned int timerStart, currentTime;
 
@@ -77,9 +77,12 @@ btwNoteTimer.startTimer(100);
 
 
 void loop() {
+  //setHue(BULB,false,50,255); //light off
+  lightLevelC=analogRead(PHOTODIODE); //read light through hole of scroll
+  Serial.printf("Light level is %i\n",lightLevelC); //what light level is usual?
   if(lightLevelC>NOTELEVEL){
     //setHue(BULB,true,HueViolet,50,255);
-    cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take?
+    //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take?
     //noteTimer.isTimerReady();
     tone(BUZZPIN,CNOTE,DURATION);
     //delay(DURATION+1000);

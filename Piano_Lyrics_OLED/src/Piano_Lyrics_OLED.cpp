@@ -15,7 +15,7 @@
 
 
 // Let Device OS manage the connection to the Particle Cloud
-SYSTEM_MODE(AUTOMATIC);
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 // Run the application and system concurrently in separate threads
 SYSTEM_THREAD(ENABLED);
@@ -25,6 +25,8 @@ const int NUMFLAKES=10;//like const (datatype=int?) NUMFLAKES=10; what is this c
 const int XPOS=0; 
 const int  YPOS=1;
 const int DELTAY=2;
+char threeBlindMice[]={'THREE','BLIND','MICE'};//declare lyrics as array
+int i;//looping through lyrics how many times tones
 
 Adafruit_SSD1306 display(OLED_RESET);
 
@@ -46,7 +48,7 @@ void loop() {
   display.setTextSize(1);//code to add my name and birthdate
   display.setTextColor(WHITE);
   display.setCursor(0,0);
-  display.printf(threeBlindMice[i]\n); //song lyrics here "three blind mice"? make into array and loop through with each note
+  display.printf("%c\n",threeBlindMice[0]); //song lyrics here "three blind mice"? make into array and loop through with each note
   display.display();
   delay(1000); 
 

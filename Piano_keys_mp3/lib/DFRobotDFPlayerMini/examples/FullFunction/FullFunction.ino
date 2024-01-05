@@ -19,11 +19,11 @@
  2.This code is tested on Arduino Uno, Leonardo, Mega boards.
  ****************************************************/
 
-#include "Arduino.h"
-#include "SoftwareSerial.h"
+//#include "Arduino.h"
+////#include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
 
-SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
+//SoftwareSerial mySoftwareSerial(D15, D16); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
