@@ -37,13 +37,20 @@ const int ANOTE=220;//freq for A
 const int BNOTE=247;//freq for B
 const int HICNOTE=262;//freq for high C
 
+const int CBUTTON=D4;
+
 int lightLevelC;//for color of each note?
 int color;
 unsigned int timerStart, currentTime;
 
+int cBState;
+bool onOff;
+
 Servo cServo;//create object ...servo class built into photon library
 IoTTimer btwNoteTimer;
 Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);
+Button cButton(CBUTTON);
+IoTTimer noteTimer;
 
 
 void setup() {
@@ -65,6 +72,7 @@ void setup() {
   pinMode(PHOTODIODE,INPUT);//photodiode
   pinMode(BUZZPIN,OUTPUT);//buzzer
   cServo.attach(SERVPIN);//motor for C key (or all keys?)
+  onOff=false;
 
 pixel.begin();//to initialize neopixel for home tests
 pixel.setBrightness (20); 
@@ -78,15 +86,26 @@ btwNoteTimer.startTimer(100);
 
 void loop() {
   //setHue(BULB,false,50,255); //light off
-  lightLevelC=analogRead(PHOTODIODE); //read light through hole of scroll
-  Serial.printf("Light level is %i\n",lightLevelC); //what light level is usual?
-  if(lightLevelC>NOTELEVEL){
+  //lightLevelC=analogRead(PHOTODIODE); //read light through hole of scroll
+ // Serial.printf("Light level is %i\n",lightLevelC); //what light level is usual?
+  //if(lightLevelC>NOTELEVEL){
     //setHue(BULB,true,HueViolet,50,255);
     //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take?
     //noteTimer.isTimerReady();
-    tone(BUZZPIN,CNOTE,DURATION);
+    //tone(BUZZPIN,CNOTE,DURATION);
     //delay(DURATION+1000);
-  }
+  
+if(cButton.isPressed()) {
+tone(BUZZPIN,CNOTE);//stays on after press
+//noteTimer.startTimer(5000);
+}
+
+//noteTimer.isTimerReady() 
+  noTone(BUZZPIN);
+
+
+ 
+}
 
   //btwNoteTimer.startTimer(NOTEDELAY); //how long light stays on/in between notes if looped
     
@@ -96,4 +115,4 @@ void loop() {
  
 
   
-}
+

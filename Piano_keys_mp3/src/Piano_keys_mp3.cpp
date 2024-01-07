@@ -59,10 +59,10 @@ void setup() {
 void loop() {
 //static unsigned long timer = millis();
 
- // if (millis() - timer > 3000) {
-   // timer = millis();
+  //if (millis() - timer > 3000) {
+    //timer = millis();
     //myDFPlayer.next();  //Play next mp3 every 3 second.
-  }
+  
   
   //piano1 1st folder, note tracks in alpha order
   //myDFPlayer.EQ(DFPLAYER_EQ_NORMAL);
@@ -71,14 +71,18 @@ void loop() {
   //pausePlay=0;
   //myDFPlayer.volume(10);
 
-//myDFPlayer.play(1);  //Play the first mp3
+
   //delay(1000); 
 //myDFPlayer.randomAll();
-//myDFPlayer.playFolder(1,1);  //play specific mp3 in SD:/15/004.mp3; Folder Name(1~99); File Name(1~255)
-/*
+
 if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
-*/
+    myDFPlayer.play(1);  //Play the first mp3
+    //myDFPlayer.playFolder(1,1);  //play specific mp3 in SD:/15/004.mp3; Folder Name(1~99); File Name(1~255)
+
+
+}
+}
  //to play mp3 tracks when button pressed 
  /*   
 if(cButton.isPressed()) {
@@ -97,7 +101,7 @@ if(dButton.isPressed()) {
   // Particle.publish("Hello world!");
   // delay( 10 * 1000 ); // milliseconds and blocking - see docs for more info!
 
-/*
+
 void printDetail(uint8_t type, int value){
   switch (type) {
     case TimeOut:
@@ -115,12 +119,14 @@ void printDetail(uint8_t type, int value){
     case DFPlayerCardOnline:
       Serial.println(F("Card Online!"));
       break;
-    case DFPlayerUSBInserted:
+      /*
+    case DFPlayerCardInserted:
       Serial.println("USB Inserted!");
       break;
-    case DFPlayerUSBRemoved:
+    case DFPlayerCardRemoved:
       Serial.println("USB Removed!");
       break;
+      */
     case DFPlayerPlayFinished:
       Serial.print(F("Number:"));
       Serial.print(value);
@@ -159,4 +165,3 @@ void printDetail(uint8_t type, int value){
   }
 
 }
-*/
