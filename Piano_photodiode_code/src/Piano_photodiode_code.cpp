@@ -21,6 +21,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 
 SYSTEM_THREAD(ENABLED);
 //declare component pins
+const int WEMO1=1;
 const int BULB=2;//hue bulb at my desk
 const int PHOTODIODEONE=A0;
 const int PHOTODIODETWO=A1;
@@ -51,6 +52,9 @@ const int FBUTTON=D5;
 const int EBUTTON=D6;
 const int DBUTTON=D7;
 const int CBUTTON=D10;
+const int ENCSWITCH=D19;
+const int GREENLED=D18;
+//const int REDLED=D16;//not enough pins?
 
 int lightLevelOne;//photodiode 1-4
 int lightLevelTwo;
@@ -72,6 +76,7 @@ Button fButton(FBUTTON);
 Button eButton(EBUTTON);
 Button dButton(DBUTTON);
 Button cButton(CBUTTON);
+Button encSwitch(ENCSWITCH,FALSE);
 IoTTimer noteTimer;
 IoTTimer btwNoteTimer;
 
@@ -97,9 +102,11 @@ void setup() {
   pinMode(PHOTODIODETHREE,INPUT);//photodiode 3
   pinMode(PHOTODIODEFOUR,INPUT);//photodiode 4
 
+  pinMode(GREENLED, OUTPUT);//light on encoder switch
+
   pinMode(BUZZPIN,OUTPUT);//buzzer
   cServo.attach(SERVPIN);//motor for C key (or all keys?)
-  onOff=false;
+  onOff=true;//for encoder switch-start true since on is off (ground completes circuit)
 
 pixel.begin();//to initialize neopixel for home tests
 pixel.setBrightness (20); 
@@ -114,6 +121,15 @@ btwNoteTimer.startTimer(100);
 
 
 void loop() {
+  /////MANUAL MODE AND TO START AUTO
+  if(encSwitch.isClicked()) {//using button heterofile with bool function isClicked
+    onOff=!onOff;//assigns onoff opposite of existing (toggles)
+
+  }
+  digitalWrite(GREENLED,onOff);//low turns on (connects to ground to complete circuit)
+  wemoWrite(WEMO1,onOff);//still add turning switch red/green?
+
+  
   //////FOR AUTO MODE WITH SCROLL
   //setHue(BULB,false,50,255); //light off
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
@@ -146,7 +162,7 @@ void loop() {
 if(hicButton.isPressed()) {
   tone(BUZZPIN,HICNOTE);//stays on while pressed
   }
-if(bButton.isPressed())  {
+if(bButton.isPressed())  {//with pull-down resistor 10kohms >2vreads high  <0.8 reads low  avoid in-btw
   tone(BUZZPIN,BNOTE);
   }
 if(aButton.isPressed())  {
