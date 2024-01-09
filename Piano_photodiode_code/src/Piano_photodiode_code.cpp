@@ -16,21 +16,24 @@
 
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
-//SYSTEM_MODE(AUTOMATIC);//for room control
+//SYSTEM_MODE(AUTOMATIC);//enable for room control web connection
 
 
 SYSTEM_THREAD(ENABLED);
-const int BULB=2;
+//declare component pins
+const int BULB=2;//hue bulb at my desk
 const int PHOTODIODEONE=A0;
 const int PHOTODIODETWO=A1;
 const int PHOTODIODETHREE=A2;
 const int PHOTODIODEFOUR=A5;
 const int SERVPIN=A2;//has to be PWM
 const int BUZZPIN= D16;//PWM
+//thresholds and delay times
 const int NOTELEVEL=50;//how much light photodiode has to have to trigger hue light
 const int NOTEDELAY=2000;//will need to be varied, so maybe later not constant? how long light stays on
 const int DURATION=1000;//also may need to be varied-how long note plays, same as delay, so could be same variable
-const int PIXELCOUNT=1;//use one neopixel to check hue light when not at FUSE
+const int PIXELCOUNT=1;//use one neopixel to check hue light when not at FUSE and neopixel for on/off indicator light
+//declare all note frequencies
 const int CNOTE=131;//freq for C notes could be h file later? or use pitch.h
 const int DNOTE=147;//freq for D
 const int ENOTE=165;//freq for E
@@ -39,7 +42,7 @@ const int GNOTE=196;//freq for G
 const int ANOTE=220;//freq for A
 const int BNOTE=247;//freq for B
 const int HICNOTE=262;//freq for high C
-
+//declare all button pins
 const int HICBUTTON=D17;
 const int BBUTTON=D2;
 const int ABUTTON=D3;
@@ -49,25 +52,32 @@ const int EBUTTON=D6;
 const int DBUTTON=D7;
 const int CBUTTON=D10;
 
-int lightLevelOne;//photodiode 1
+int lightLevelOne;//photodiode 1-4
 int lightLevelTwo;
 int lightLevelThree;
 int lightLevelFour;
-int color;
-unsigned int timerStart, currentTime;
+int color;//hue light color
+unsigned int timerStart, currentTime;//unsigned saves memory space
 
-int cBState;
+int cBState;//not necessary with h file ?
 bool onOff;
-
+//create all objects: servo, timers, neopixel, buttons...
 Servo cServo;//create object ...servo class built into photon library
-IoTTimer btwNoteTimer;
 Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);
-Button hicButton(HICBUTTON),bButton(BBUTTON),aButton(ABUTTON),gButton(GBUTTON),fButton(FBUTTON),eButton(EBUTTON),dButton(DBUTTON),cButton(CBUTTON);
+Button hicButton(HICBUTTON);
+Button bButton(BBUTTON);
+Button aButton(ABUTTON);
+Button gButton(GBUTTON);
+Button fButton(FBUTTON);
+Button eButton(EBUTTON);
+Button dButton(DBUTTON);
+Button cButton(CBUTTON);
 IoTTimer noteTimer;
+IoTTimer btwNoteTimer;
 
 
 void setup() {
-  Serial.begin(9600); 
+  Serial.begin(9600); //serial port
   waitFor(Serial.isConnected,15000);
 
   /*
@@ -104,22 +114,23 @@ btwNoteTimer.startTimer(100);
 
 
 void loop() {
+  //////FOR AUTO MODE WITH SCROLL
   //setHue(BULB,false,50,255); //light off
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
   lightLevelTwo=analogRead(PHOTODIODETWO);
   lightLevelThree=analogRead(PHOTODIODETHREE);
   lightLevelFour=analogRead(PHOTODIODEFOUR);
-  Serial.printf("Light level one is %i\n",lightLevelOne); //what light level is usual?
+  Serial.printf("Light level one is %i\n",lightLevelOne); //what light level is usual? use this to de-bug etc
   Serial.printf("Light level two is %i\n",lightLevelTwo);
   Serial.printf("Light level three is %i\n",lightLevelThree);
   Serial.printf("Light level four is %i\n",lightLevelFour);
   /*
   if(lightLevelOne>NOTELEVEL){
     //setHue(BULB,true,HueViolet,50,255);
-    //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take?
+    //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
     //noteTimer.isTimerReady();
     tone(BUZZPIN,CNOTE);//timing? just as long as exposed to light?
-    //delay(DURATION+1000);
+    //delay(DURATION+1000);//may not need
   }
   if(lightLevelTwo>NOTELEVEL) {
     tone(BUZZPIN,DNOTE);
@@ -131,33 +142,34 @@ void loop() {
   if(lightLevelFour>NOTELEVEL) {
     tone(BUZZPIN,FNOTE);
   }
+  /////FOR MANUAL MODE PRESSING PIANO KEYS
 if(hicButton.isPressed()) {
-tone(BUZZPIN,HICNOTE);//stays on while pressed
-}
+  tone(BUZZPIN,HICNOTE);//stays on while pressed
+  }
 if(bButton.isPressed())  {
   tone(BUZZPIN,BNOTE);
-}
+  }
 if(aButton.isPressed())  {
   tone(BUZZPIN,ANOTE);
-}
+  }
 if(gButton.isPressed())  {
   tone(BUZZPIN,GNOTE);
-}
+  }
 if(fButton.isPressed())  {
   tone(BUZZPIN,FNOTE);
-}
+  }
 if(eButton.isPressed())  {
   tone(BUZZPIN,ENOTE);
-}
+  }
 if(dButton.isPressed())  {
   tone(BUZZPIN,DNOTE);
-}
+  }
 if(cButton.isPressed())  {
   tone(BUZZPIN,CNOTE);
-}
+  }
 
 //noteTimer.isTimerReady() 
-  noTone(BUZZPIN);
+noTone(BUZZPIN);
 
 
  
