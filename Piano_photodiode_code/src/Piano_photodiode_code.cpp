@@ -22,6 +22,9 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 const int BULB=2;
 const int PHOTODIODEONE=A0;
+const int PHOTODIODETWO=A1;
+const int PHOTODIODETHREE=A2;
+const int PHOTODIODEFOUR=A5;
 const int SERVPIN=A2;//has to be PWM
 const int BUZZPIN= D16;//PWM
 const int NOTELEVEL=50;//how much light photodiode has to have to trigger hue light
@@ -47,6 +50,9 @@ const int DBUTTON=D7;
 const int CBUTTON=D10;
 
 int lightLevelOne;//photodiode 1
+int lightLevelTwo;
+int lightLevelThree;
+int lightLevelFour;
 int color;
 unsigned int timerStart, currentTime;
 
@@ -77,6 +83,10 @@ void setup() {
   */
 
   pinMode(PHOTODIODEONE,INPUT);//photodiode 1
+  pinMode(PHOTODIODETWO,INPUT);//photodiode 2
+  pinMode(PHOTODIODETHREE,INPUT);//photodiode 3
+  pinMode(PHOTODIODEFOUR,INPUT);//photodiode 4
+
   pinMode(BUZZPIN,OUTPUT);//buzzer
   cServo.attach(SERVPIN);//motor for C key (or all keys?)
   onOff=false;
@@ -86,6 +96,8 @@ pixel.setBrightness (20);
 pixel.show();
 btwNoteTimer.startTimer(100);
 
+//tone(BUZZPIN,FNOTE);
+
 
   
 }
@@ -93,14 +105,31 @@ btwNoteTimer.startTimer(100);
 
 void loop() {
   //setHue(BULB,false,50,255); //light off
-  lightLevelOne=analogRead(PHOTODIODEONE); //read light through hole of scroll
+  lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
+  lightLevelTwo=analogRead(PHOTODIODETWO);
+  lightLevelThree=analogRead(PHOTODIODETHREE);
+  lightLevelFour=analogRead(PHOTODIODEFOUR);
   Serial.printf("Light level one is %i\n",lightLevelOne); //what light level is usual?
+  Serial.printf("Light level two is %i\n",lightLevelTwo);
+  Serial.printf("Light level three is %i\n",lightLevelThree);
+  Serial.printf("Light level four is %i\n",lightLevelFour);
+  /*
   if(lightLevelOne>NOTELEVEL){
     //setHue(BULB,true,HueViolet,50,255);
     //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take?
     //noteTimer.isTimerReady();
-    tone(BUZZPIN,CNOTE,DURATION);//timing?
+    tone(BUZZPIN,CNOTE);//timing? just as long as exposed to light?
     //delay(DURATION+1000);
+  }
+  if(lightLevelTwo>NOTELEVEL) {
+    tone(BUZZPIN,DNOTE);
+  }
+  if(lightLevelThree>NOTELEVEL) {
+    tone(BUZZPIN,ENOTE);
+  }
+  */
+  if(lightLevelFour>NOTELEVEL) {
+    tone(BUZZPIN,FNOTE);
   }
 if(hicButton.isPressed()) {
 tone(BUZZPIN,HICNOTE);//stays on while pressed
