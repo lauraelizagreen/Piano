@@ -21,10 +21,10 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 
 SYSTEM_THREAD(ENABLED);
 const int BULB=2;
-const int PHOTODIODE=A1;
+const int PHOTODIODEONE=A0;
 const int SERVPIN=A2;//has to be PWM
-const int BUZZPIN= A5;//PWM?
-const int NOTELEVEL=20;//how much light photodiode has to have to trigger hue light
+const int BUZZPIN= D16;//PWM
+const int NOTELEVEL=50;//how much light photodiode has to have to trigger hue light
 const int NOTEDELAY=2000;//will need to be varied, so maybe later not constant? how long light stays on
 const int DURATION=1000;//also may need to be varied-how long note plays, same as delay, so could be same variable
 const int PIXELCOUNT=1;//use one neopixel to check hue light when not at FUSE
@@ -37,9 +37,16 @@ const int ANOTE=220;//freq for A
 const int BNOTE=247;//freq for B
 const int HICNOTE=262;//freq for high C
 
-const int CBUTTON=D4;
+const int HICBUTTON=D17;
+const int BBUTTON=D2;
+const int ABUTTON=D3;
+const int GBUTTON=D4;
+const int FBUTTON=D5;
+const int EBUTTON=D6;
+const int DBUTTON=D7;
+const int CBUTTON=D10;
 
-int lightLevelC;//for color of each note?
+int lightLevelOne;//photodiode 1
 int color;
 unsigned int timerStart, currentTime;
 
@@ -49,7 +56,7 @@ bool onOff;
 Servo cServo;//create object ...servo class built into photon library
 IoTTimer btwNoteTimer;
 Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);
-Button cButton(CBUTTON);
+Button hicButton(HICBUTTON),bButton(BBUTTON),aButton(ABUTTON),gButton(GBUTTON),fButton(FBUTTON),eButton(EBUTTON),dButton(DBUTTON),cButton(CBUTTON);
 IoTTimer noteTimer;
 
 
@@ -69,7 +76,7 @@ void setup() {
   Serial.printf("\n\n");
   */
 
-  pinMode(PHOTODIODE,INPUT);//photodiode
+  pinMode(PHOTODIODEONE,INPUT);//photodiode 1
   pinMode(BUZZPIN,OUTPUT);//buzzer
   cServo.attach(SERVPIN);//motor for C key (or all keys?)
   onOff=false;
@@ -86,18 +93,38 @@ btwNoteTimer.startTimer(100);
 
 void loop() {
   //setHue(BULB,false,50,255); //light off
-  //lightLevelC=analogRead(PHOTODIODE); //read light through hole of scroll
- // Serial.printf("Light level is %i\n",lightLevelC); //what light level is usual?
-  //if(lightLevelC>NOTELEVEL){
+  lightLevelOne=analogRead(PHOTODIODEONE); //read light through hole of scroll
+  Serial.printf("Light level one is %i\n",lightLevelOne); //what light level is usual?
+  if(lightLevelOne>NOTELEVEL){
     //setHue(BULB,true,HueViolet,50,255);
     //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take?
     //noteTimer.isTimerReady();
-    //tone(BUZZPIN,CNOTE,DURATION);
+    tone(BUZZPIN,CNOTE,DURATION);//timing?
     //delay(DURATION+1000);
-  
-if(cButton.isPressed()) {
-tone(BUZZPIN,CNOTE);//stays on after press
-//noteTimer.startTimer(5000);
+  }
+if(hicButton.isPressed()) {
+tone(BUZZPIN,HICNOTE);//stays on while pressed
+}
+if(bButton.isPressed())  {
+  tone(BUZZPIN,BNOTE);
+}
+if(aButton.isPressed())  {
+  tone(BUZZPIN,ANOTE);
+}
+if(gButton.isPressed())  {
+  tone(BUZZPIN,GNOTE);
+}
+if(fButton.isPressed())  {
+  tone(BUZZPIN,FNOTE);
+}
+if(eButton.isPressed())  {
+  tone(BUZZPIN,ENOTE);
+}
+if(dButton.isPressed())  {
+  tone(BUZZPIN,DNOTE);
+}
+if(cButton.isPressed())  {
+  tone(BUZZPIN,CNOTE);
 }
 
 //noteTimer.isTimerReady() 

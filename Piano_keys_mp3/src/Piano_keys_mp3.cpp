@@ -57,12 +57,12 @@ void setup() {
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
-//static unsigned long timer = millis();
+static unsigned long timer = millis();
 
-  //if (millis() - timer > 3000) {
-    //timer = millis();
-    //myDFPlayer.next();  //Play next mp3 every 3 second.
-  
+if (millis() - timer > 3000) {
+    timer = millis();
+    myDFPlayer.next();  //Play next mp3 every 3 second.
+}
   
   //piano1 1st folder, note tracks in alpha order
   //myDFPlayer.EQ(DFPLAYER_EQ_NORMAL);
@@ -77,8 +77,8 @@ void loop() {
 
 if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
-    myDFPlayer.play(1);  //Play the first mp3
-    //myDFPlayer.playFolder(1,1);  //play specific mp3 in SD:/15/004.mp3; Folder Name(1~99); File Name(1~255)
+    //myDFPlayer.play(1);  //Play the first mp3
+    //myDFPlayer.playFolder(2,1);  //play specific mp3 in SD:/15/004.mp3; Folder Name(1~99); File Name(1~255)
 
 
 }
