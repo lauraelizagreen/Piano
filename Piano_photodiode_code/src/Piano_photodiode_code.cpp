@@ -21,7 +21,7 @@ SYSTEM_MODE(MANUAL);//enable for room control web connection
 
 SYSTEM_THREAD(ENABLED);
 //declare component pins
-const int WEMO1=1;//spotlight
+const int WEMO1=4;//spotlight WEMO4 for now
 const int WEMO2=5;//fan
 const int BULB=2;//hue bulb at my desk
 const int PHOTODIODEONE=A0;
@@ -70,7 +70,7 @@ int cBState;//not necessary with h file ?
 bool onOff;
 //create all objects: servo, timers, neopixel, buttons...
 Servo cServo;//create object ...servo class built into photon library
-Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);
+//Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);///SPI1 is D2
 Button hicButton(HICBUTTON);
 Button bButton(BBUTTON);  
 Button aButton(ABUTTON);
@@ -112,11 +112,12 @@ void setup() {
   pinMode(BUZZPIN,OUTPUT);//buzzer
   cServo.attach(SERVPIN);//motor for C key (or all keys?)
   onOff=true;//for encoder switch-start true since on is off (ground completes circuit)
-
+/*
 pixel.begin();//to initialize neopixel for home tests
 pixel.setBrightness (20); 
 pixel.show();
 //btwNoteTimer.startTimer(100);
+*/
  
 //tone(BUZZPIN,FNOTE);//just to test buzzer
 digitalWrite(GREENLED,onOff);//not sure if I need this
@@ -138,12 +139,12 @@ void loop() {
 
   }
   digitalWrite(GREENLED,onOff);//low turns on (connects to ground to complete circuit)
-  wemoWrite(WEMO1,!onOff);//still add turning switch red/green? spotlight on
+  wemoWrite(WEMO1,onOff);//still add turning switch red/green? spotlight on
 Serial.printf("onOff=%i\n",onOff);
-if(onOff=TRUE){
+if(onOff==TRUE){
   
   //////FOR AUTO MODE WITH SCROLL
-  setHue(BULB,false,50,255); //light off
+  //setHue(BULB,false,50,255); //light off
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
   lightLevelTwo=analogRead(PHOTODIODETWO);
   lightLevelThree=analogRead(PHOTODIODETHREE);
@@ -160,11 +161,12 @@ if(onOff=TRUE){
     tone(BUZZPIN,CNOTE);//timing? just as long as exposed to light?
     //delay(DURATION+1000);//may not need
   }
+  
   else {
   setHue(BULB,false);
   noTone(BUZZPIN);//??
   }
-  /*
+  
   if(lightLevelTwo>NOTELEVEL) {
     tone(BUZZPIN,DNOTE);
   }
@@ -175,14 +177,14 @@ if(onOff=TRUE){
   if(lightLevelFour>NOTELEVEL) {
     tone(BUZZPIN,FNOTE);
   }
-  */
+  
   //if(lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL) {
     //wemoWrite(WEMO1,TRUE);
   //}
  // else {
    // wemoWrite(WEMO2,FALSE);
-  //}
-}
+  }
+
 else {
   
   /////FOR MANUAL MODE PRESSING PIANO KEYS
@@ -246,6 +248,7 @@ if(cButton.isPressed())  {
   }
 }
 }
+
   
   
   
