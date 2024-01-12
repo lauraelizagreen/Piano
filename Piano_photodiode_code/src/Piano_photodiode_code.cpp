@@ -62,7 +62,9 @@ int lightLevelTwo;
 int lightLevelThree;
 int lightLevelFour;
 int color;//hue light color
+int playNote;
 unsigned int timerStart, currentTime;//unsigned saves memory space
+
 
 int cBState;//not necessary with h file ?
 bool onOff;
@@ -115,10 +117,11 @@ pixel.begin();//to initialize neopixel for home tests
 pixel.setBrightness (20); 
 pixel.show();
 //btwNoteTimer.startTimer(100);
-
+onOff=FALSE; 
 //tone(BUZZPIN,FNOTE);//just to test buzzer
 digitalWrite(GREENLED,onOff);//not sure if I need this
 wemoWrite(WEMO1,onOff);
+playNote=0;
 
 
 
@@ -172,44 +175,52 @@ Serial.printf("onOff=%b\n",onOff);
   */
   /////FOR MANUAL MODE PRESSING PIANO KEYS
 if(hicButton.isPressed()) {//if it were "while" would not move to other parts of code
+   playNote=HICNOTE;
   ///tone(BUZZPIN,HICNOTE);//stays on while pressed
   //Serial.printf("button state is" %)
   }
-  else{//without else -just noTone can look like working bc looping so fast
+  //else{//without else -just noTone can look like working bc looping so fast
   //noTone(BUZZPIN);
-  }
+  //}
   
 //if(bButton.isPressed())  {//with pull-down resistor 10kohms >2vreads high  <0.8 reads low  avoid in-btw
-  tone(BUZZPIN,BNOTE);
-  }
+  //tone(BUZZPIN,BNOTE);
+  
   //else{
    // noTone(BUZZPIN);
   //}
 
-/*
+
 if(aButton.isPressed())  {
-  tone(BUZZPIN,ANOTE);
+  playNote=ANOTE;
   }
 if(gButton.isPressed())  {
-  tone(BUZZPIN,GNOTE);
+   playNote=GNOTE;
   }
 if(fButton.isPressed())  {
-  tone(BUZZPIN,FNOTE);
+  playNote=FNOTE;
   }
 if(eButton.isPressed())  {
-  tone(BUZZPIN,ENOTE);
+  playNote=ENOTE;
   }
 if(dButton.isPressed())  {
-  tone(BUZZPIN,DNOTE);
+  playNote=DNOTE;
   }
 if(cButton.isPressed())  {
-  tone(BUZZPIN,CNOTE);
+   playNote=CNOTE;
   }
 
-//noteTimer.isTimerReady() 
-noTone(BUZZPIN);
-*/
+  
 
+//noteTimer.isTimerReady() 
+//noTone(BUZZPIN);
+
+while(playNote!=0) {
+  tone(BUZZPIN,playNote);
+}
+
+  noTone(BUZZPIN);
+}
 
  
 
