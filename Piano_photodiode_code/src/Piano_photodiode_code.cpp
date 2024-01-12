@@ -15,8 +15,8 @@
 
 
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
-//SYSTEM_MODE(AUTOMATIC);//enable for room control web connection
+SYSTEM_MODE(MANUAL);//enable for room control web connection
+//SYSTEM_MODE(SEMI_AUTOMATIC);
 
 
 SYSTEM_THREAD(ENABLED);
@@ -109,7 +109,7 @@ void setup() {
 
   pinMode(GREENLED, OUTPUT);//light on encoder switch
 
-  //pinMode(BUZZPIN,OUTPUT);//buzzer
+  pinMode(BUZZPIN,OUTPUT);//buzzer
   cServo.attach(SERVPIN);//motor for C key (or all keys?)
   onOff=true;//for encoder switch-start true since on is off (ground completes circuit)
 
@@ -140,6 +140,7 @@ void loop() {
   digitalWrite(GREENLED,onOff);//low turns on (connects to ground to complete circuit)
   wemoWrite(WEMO1,!onOff);//still add turning switch red/green? spotlight on
 Serial.printf("onOff=%i\n",onOff);
+if(onOff=TRUE){
   
   //////FOR AUTO MODE WITH SCROLL
   setHue(BULB,false,50,255); //light off
@@ -176,11 +177,13 @@ Serial.printf("onOff=%i\n",onOff);
   }
   */
   //if(lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL) {
-    wemoWrite(WEMO1,TRUE);
+    //wemoWrite(WEMO1,TRUE);
   //}
  // else {
    // wemoWrite(WEMO2,FALSE);
   //}
+}
+else {
   
   /////FOR MANUAL MODE PRESSING PIANO KEYS
 playNote=0;
@@ -235,11 +238,14 @@ if(cButton.isPressed())  {
   }
   
   if(playNote!=0) {
+    Serial.printf("tone=%i\n",playNote);
   tone(BUZZPIN,playNote);
   }
   else {
   noTone(BUZZPIN);
   }
+}
+}
   
   
   
@@ -249,7 +255,7 @@ if(cButton.isPressed())  {
 
 
 
-}
+
 
  
 
