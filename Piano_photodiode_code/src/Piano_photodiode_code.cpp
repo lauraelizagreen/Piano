@@ -46,7 +46,7 @@ const int BNOTE=247;//freq for B
 const int HICNOTE=262;//freq for high C
 //declare all button pins
 const int HICBUTTON=D17;
-const int BBUTTON=D15;//D2
+const int BBUTTON=D2;//D15
 const int ABUTTON=D3;
 const int GBUTTON=D4;
 const int FBUTTON=D5;
@@ -117,11 +117,13 @@ pixel.begin();//to initialize neopixel for home tests
 pixel.setBrightness (20); 
 pixel.show();
 //btwNoteTimer.startTimer(100);
-onOff=FALSE; 
+ 
 //tone(BUZZPIN,FNOTE);//just to test buzzer
 digitalWrite(GREENLED,onOff);//not sure if I need this
-wemoWrite(WEMO1,onOff);
+wemoWrite(WEMO1,TRUE);
+wemoWrite(WEMO2,FALSE);
 playNote=0;
+onOff=TRUE;
 
 
 
@@ -136,28 +138,31 @@ void loop() {
 
   }
   digitalWrite(GREENLED,onOff);//low turns on (connects to ground to complete circuit)
-  wemoWrite(WEMO2,onOff);//still add turning switch red/green? spotlight on
-Serial.printf("onOff=%b\n",onOff);
+  wemoWrite(WEMO1,!onOff);//still add turning switch red/green? spotlight on
+Serial.printf("onOff=%i\n",onOff);
   
   //////FOR AUTO MODE WITH SCROLL
-  //setHue(BULB,false,50,255); //light off
+  setHue(BULB,false,50,255); //light off
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
   lightLevelTwo=analogRead(PHOTODIODETWO);
   lightLevelThree=analogRead(PHOTODIODETHREE);
   lightLevelFour=analogRead(PHOTODIODEFOUR);
-  //Serial.printf("Light level one is %i\n",lightLevelOne); //what light level is usual? use this to de-bug etc
-  //Serial.printf("Light level two is %i\n",lightLevelTwo);
-  //Serial.printf("Light level three is %i\n",lightLevelThree);
-  //Serial.printf("Light level four is %i\n",lightLevelFour);
-  /*
-  if(lightLevelOne>NOTELEVEL){
+  Serial.printf("Light level one is %i\n",lightLevelOne); //what light level is usual? use this to de-bug etc
+  Serial.printf("Light level two is %i\n",lightLevelTwo);
+  Serial.printf("Light level three is %i\n",lightLevelThree);
+  Serial.printf("Light level four is %i\n",lightLevelFour);
+  
+  if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
     setHue(BULB,true,HueYellow,50,255);
     //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
     //noteTimer.isTimerReady();
     tone(BUZZPIN,CNOTE);//timing? just as long as exposed to light?
     //delay(DURATION+1000);//may not need
   }
+  else {
   setHue(BULB,false);
+  noTone(BUZZPIN);//??
+  }
   /*
   if(lightLevelTwo>NOTELEVEL) {
     tone(BUZZPIN,DNOTE);
@@ -169,57 +174,81 @@ Serial.printf("onOff=%b\n",onOff);
   if(lightLevelFour>NOTELEVEL) {
     tone(BUZZPIN,FNOTE);
   }
-  if(lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL) {
-    wemoWrite(WEMO1,TRUE);
-  }
   */
+  //if(lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL) {
+    wemoWrite(WEMO1,TRUE);
+  //}
+ // else {
+   // wemoWrite(WEMO2,FALSE);
+  //}
+  
   /////FOR MANUAL MODE PRESSING PIANO KEYS
-if(hicButton.isPressed()) {//if it were "while" would not move to other parts of code
+playNote=0;
+  
+if(hicButton.isPressed()) {
    playNote=HICNOTE;
-  ///tone(BUZZPIN,HICNOTE);//stays on while pressed
-  //Serial.printf("button state is" %)
+   setHue(BULB,true,HueYellow,50,255);
+   
   }
+  
   //else{//without else -just noTone can look like working bc looping so fast
   //noTone(BUZZPIN);
   //}
   
-//if(bButton.isPressed())  {//with pull-down resistor 10kohms >2vreads high  <0.8 reads low  avoid in-btw
-  //tone(BUZZPIN,BNOTE);
+if(bButton.isPressed())  {//with pull-down resistor 10kohms >2vreads high  <0.8 reads low  avoid in-btw
+  playNote=BNOTE;
+}
   
-  //else{
-   // noTone(BUZZPIN);
-  //}
-
+  
 
 if(aButton.isPressed())  {
   playNote=ANOTE;
   }
+  
+  
+  
 if(gButton.isPressed())  {
    playNote=GNOTE;
   }
+  
+ 
 if(fButton.isPressed())  {
   playNote=FNOTE;
   }
+  
+  
+  
 if(eButton.isPressed())  {
   playNote=ENOTE;
   }
+  
+  
+  
 if(dButton.isPressed())  {
   playNote=DNOTE;
   }
+  
+  
+  
 if(cButton.isPressed())  {
    playNote=CNOTE;
   }
-
+  
+  if(playNote!=0) {
+  tone(BUZZPIN,playNote);
+  }
+  else {
+  noTone(BUZZPIN);
+  }
+  
+  
   
 
 //noteTimer.isTimerReady() 
-//noTone(BUZZPIN);
 
-while(playNote!=0) {
-  tone(BUZZPIN,playNote);
-}
 
-  noTone(BUZZPIN);
+
+
 }
 
  
