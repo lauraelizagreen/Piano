@@ -33,6 +33,7 @@ void setup() {
 display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with 12C address----not sure I understand this....??
 void setRotation(uint8_t rotation);//how to use this to flip?
 display.clearDisplay();   // clears the screen and buffer
+display.display();
 }
 
 // loop() runs over and over again, as quickly as it can execute.

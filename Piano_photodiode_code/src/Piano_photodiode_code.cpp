@@ -8,15 +8,16 @@
 
 // Include Particle Device OS APIs
 #include "Particle.h"
+#include "math.h"
 #include "IoTClassroom_CNM.h"
-#include <neopixel.h>
+//#include <neopixel.h>
 
 
 
 
 
-SYSTEM_MODE(MANUAL);//enable for room control web connection
-//SYSTEM_MODE(SEMI_AUTOMATIC);
+//SYSTEM_MODE(MANUAL);//enable for room control web connection
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 
 SYSTEM_THREAD(ENABLED);
@@ -64,7 +65,8 @@ int lightLevelFour;
 int color;//hue light color
 int playNote;
 unsigned int timerStart, currentTime;//unsigned saves memory space
-
+float motor;
+float t;
 
 int cBState;//not necessary with h file ?
 bool onOff;
@@ -88,7 +90,7 @@ void setup() {
   Serial.begin(9600); //serial port
   waitFor(Serial.isConnected,15000);
 
-  
+  /*
   WiFi.on();  //comment out this section when not at FUSE
   WiFi.clearCredentials();
   WiFi.setCredentials("IoTNetwork");
@@ -98,7 +100,7 @@ void setup() {
     Serial.printf(".");
   }  
   Serial.printf("\n\n");
-
+  */
   //pinMode(BBUTTON,INPUT);//to test if still voltage at pin D2
   
 
@@ -157,6 +159,9 @@ if(onOff==TRUE){
   if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
     setHue(BULB,true,HueYellow,50,255);
     //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
+    t=millis()/1000.0; //to get current time
+    motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
+    cServo.write(motor);
     //noteTimer.isTimerReady();
     tone(BUZZPIN,CNOTE);//timing? just as long as exposed to light?
     //delay(DURATION+1000);//may not need
