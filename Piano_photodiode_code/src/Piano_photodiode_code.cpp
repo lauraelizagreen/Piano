@@ -146,7 +146,8 @@ void loop() {
 if(onOff==TRUE){
   
   //////FOR AUTO MODE WITH SCROLL
-  setHue(BULB,false,50,255); //light off
+  playNote=0;
+  setHue(BULB,false); //light off
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
   lightLevelTwo=analogRead(PHOTODIODETWO);
   lightLevelThree=analogRead(PHOTODIODETHREE);
@@ -159,54 +160,60 @@ if(onOff==TRUE){
   //*/
   //1 only = C yellow
   if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
-    setHue(BULB,true,HueYellow,50,255);
+      hueColor=HueYellow;
+      playNote=CNOTE;
     //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
     //t=millis()/1000.0; //to get current time
     //motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
     //cServo.write(motor);
-    //noteTimer.isTimerReady();
-    tone(BUZZPIN,CNOTE);//timing? just as long as exposed to light?
-    //delay(DURATION+1000);//may not need
+   
+   
+   
   }
   
-  else {//still need to add other elses
-  setHue(BULB,false);
-  noTone(BUZZPIN);//??
-  }
   //2 only=D indigo
   if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)) {
-    setHue(BULB,true,HueIndigo,50,255);
-    tone(BUZZPIN,DNOTE);
+    hueColor=HueIndigo;
+    playNote=DNOTE;
   }
   //3 only=E orange
   if((lightLevelOne<NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour<NOTELEVEL)) {
-    setHue(BULB,true,HueOrange,50,255);
-    tone(BUZZPIN,ENOTE);
+    hueColor=HueOrange;
+    playNote=ENOTE;
   }
   //4 only=F green
   if((lightLevelOne<NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
-    setHue(BULB,true,HueGreen,50,255);
-    tone(BUZZPIN,FNOTE);
+    hueColor=HueGreen;
+    playNote=FNOTE;
   }
   //1 and 2=G violet
   if((lightLevelOne>NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
-  setHue(BULB,true,HueViolet,50,255);
-  tone(BUZZPIN,GNOTE);
+  hueColor=HueViolet;
+  playNote=GNOTE;
 }
 //1 and 3=A red
 if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
-  setHue(BULB,true,HueRed,50,255);
-    tone(BUZZPIN,ANOTE);
+  hueColor=HueRed;
+    playNote=ANOTE;
 }
 //1 and 4 =B Blue
 if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour>NOTELEVEL)){
-  setHue(BULB,true,HueBlue,50,255);
-    tone(BUZZPIN,BNOTE);
+  hueColor=HueBlue;
+    playNote=BNOTE;
 }
 //2 and 4=Hi C yellow
 if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
-   setHue(BULB,true,HueYellow,50,255);
-    tone(BUZZPIN,HICNOTE);
+   hueColor=HueYellow;
+    playNote=HICNOTE;
+}
+if(playNote!=0) {
+tone(BUZZPIN,playNote); //or comment out for color only play :)
+//setHue(BULB,true,hueColor,50,255);//comment out if auto mode too slow
+}
+else {
+  noTone(BUZZPIN);
+  //setHue(BULB,false);
+
 }
 
   if((lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
@@ -221,6 +228,8 @@ else {
   
   /////FOR MANUAL MODE PRESSING PIANO KEYS
 playNote=0;
+setHue(BULB,false); //light off
+
   
 if(hicButton.isPressed()) {
    playNote=HICNOTE;
