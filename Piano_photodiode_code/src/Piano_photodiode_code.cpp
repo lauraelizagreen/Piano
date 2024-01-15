@@ -22,8 +22,8 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 
 SYSTEM_THREAD(ENABLED);
 //declare component pins
-const int WEMO1=4;//spotlight WEMO4 for now
-const int WEMO2=5;//fan
+const int WEMOLIGHT=5;//spotlight 
+const int WEMOFAN=4;//fan WEMO4 (across room) for now
 const int BULB=2;//hue bulb at my desk
 const int PHOTODIODEONE=A0;
 const int PHOTODIODETWO=A1;
@@ -62,13 +62,13 @@ int lightLevelOne;//photodiode 1-4
 int lightLevelTwo;
 int lightLevelThree;
 int lightLevelFour;
-int color;//hue light color
+int hueColor;//hue light color
 int playNote;
 unsigned int timerStart, currentTime;//unsigned saves memory space
 float motor;
 float t;
 
-int cBState;//not necessary with h file ?
+//int cBState;//not necessary with h file ?
 bool onOff;
 //create all objects: servo, timers, neopixel, buttons...
 Servo cServo;//create object ...servo class built into photon library
@@ -123,8 +123,8 @@ pixel.show();
  
 //tone(BUZZPIN,FNOTE);//just to test buzzer
 digitalWrite(GREENLED,onOff);//not sure if I need this
-wemoWrite(WEMO1,TRUE);
-wemoWrite(WEMO2,FALSE);
+wemoWrite(WEMOLIGHT,TRUE);
+wemoWrite(WEMOFAN,FALSE);
 playNote=0;
 onOff=TRUE;
 
@@ -141,20 +141,22 @@ void loop() {
 
   }
   digitalWrite(GREENLED,onOff);//low turns on (connects to ground to complete circuit)
-  wemoWrite(WEMO1,onOff);//still add turning switch red/green? spotlight on
-Serial.printf("onOff=%i\n",onOff);
+  wemoWrite(WEMOLIGHT,onOff);//still add turning switch red/green? spotlight on
+//Serial.printf("onOff=%i\n",onOff);//un-comment to check
 if(onOff==TRUE){
   
   //////FOR AUTO MODE WITH SCROLL
-  //setHue(BULB,false,50,255); //light off
+  setHue(BULB,false,50,255); //light off
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
   lightLevelTwo=analogRead(PHOTODIODETWO);
   lightLevelThree=analogRead(PHOTODIODETHREE);
   lightLevelFour=analogRead(PHOTODIODEFOUR);
+  ///*
   Serial.printf("Light level one is %i\n",lightLevelOne); //what light level is usual? use this to de-bug etc
   Serial.printf("Light level two is %i\n",lightLevelTwo);
   Serial.printf("Light level three is %i\n",lightLevelThree);
   Serial.printf("Light level four is %i\n",lightLevelFour);
+  //*/
   //1 only = C yellow
   if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
     setHue(BULB,true,HueYellow,50,255);
@@ -167,7 +169,7 @@ if(onOff==TRUE){
     //delay(DURATION+1000);//may not need
   }
   
-  else {
+  else {//still need to add other elses
   setHue(BULB,false);
   noTone(BUZZPIN);//??
   }
@@ -207,12 +209,13 @@ if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTE
     tone(BUZZPIN,HICNOTE);
 }
 
-  //if(lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL) {
-    //wemoWrite(WEMO1,TRUE);//wemo with fan and chimes
-  //}
- // else {
-   // wemoWrite(WEMO2,FALSE);
+  if((lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
+    wemoWrite(WEMOFAN,TRUE);//wemo with fan and chimes
   }
+  else {
+    wemoWrite(WEMOFAN,FALSE);
+  }
+}
 
 else {
   
@@ -221,59 +224,65 @@ playNote=0;
   
 if(hicButton.isPressed()) {
    playNote=HICNOTE;
-   setHue(BULB,true,HueYellow,50,255);
-   
-  }
+   hueColor=HueYellow;
+   }
   
-  //else{//without else -just noTone can look like working bc looping so fast
-  //noTone(BUZZPIN);
-  //}
   
 if(bButton.isPressed())  {//with pull-down resistor 10kohms >2vreads high  <0.8 reads low  avoid in-btw
   playNote=BNOTE;
+  hueColor=HueBlue;
 }
+
   
   
 
 if(aButton.isPressed())  {
   playNote=ANOTE;
+  hueColor=HueRed;
   }
   
   
   
 if(gButton.isPressed())  {
    playNote=GNOTE;
+   hueColor=HueViolet;
   }
   
  
 if(fButton.isPressed())  {
   playNote=FNOTE;
+  hueColor=HueGreen;
   }
   
   
   
 if(eButton.isPressed())  {
   playNote=ENOTE;
+  hueColor=HueOrange;
   }
   
   
   
 if(dButton.isPressed())  {
   playNote=DNOTE;
+  hueColor=HueIndigo;
   }
   
   
   
 if(cButton.isPressed())  {
    playNote=CNOTE;
+   hueColor=HueYellow;
   }
   
   if(playNote!=0) {
     Serial.printf("tone=%i\n",playNote);
   tone(BUZZPIN,playNote);
+  setHue(BULB,true,hueColor,50,255);//comment out this line if manual mode too slow
   }
   else {
   noTone(BUZZPIN);
+  setHue(BULB,false);
   }
 }
 }
@@ -282,21 +291,7 @@ if(cButton.isPressed())  {
   
   
 
-//noteTimer.isTimerReady() 
 
-
-
-
-
-
- 
-
-
-  //btwNoteTimer.startTimer(NOTEDELAY); //how long light stays on/in between notes if looped
-    
-  //delay(1000);
-   //setHue(BULB,false,50,255); //how to turn off btw and timing (set timer with variable as target?  )
-    //delay(5000);
  
 
   
