@@ -23,6 +23,8 @@ const int CNOTE=131;//freq for C
 int lightLevelOne;
 float motor;
 float t;
+float tmotor;
+float startPos;
 
 Servo cServo;
 
@@ -37,18 +39,26 @@ void setup() {
 pinMode(PHOTODIODEONE,INPUT);//photodiode 1
 pinMode(BUZZPIN,OUTPUT);//buzzer
 cServo.attach(SERVPIN);
-}
 
-// loop() runs over and over again, as quickly as it can execute.
+t=millis()/1000.0;
+//motor=180.0; //then sin wave added to wherever in cycle left off? .00 bc float?
+startPos=0;
+}
 void loop() {
 ///*
   lightLevelOne=analogRead(PHOTODIODEONE);
   Serial.printf("Light level one is %i\n",lightLevelOne);
 
   if(lightLevelOne>100) {
-    t=millis()/1000.0; //to get current time
-    motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
+    //t=t+(millis()/ 1000.0); //to get current time converted to seconds use decimal since it's a float
+    //motor=((180/2.0)* sin(2 * M_PI * .1 * t)+(startPos/2.0));//A(amplitude=height of wave from midpoint) *sin(2pi * v(freq) * t(current time in sec) + B(offset from 0))
+    motor=((180/2.0)* sin(2 * M_PI * .1 * t)+90);
+    //Serial.printf("motor is %f\n",motor,"start position is %f\n",startPos);
+    Serial.printf("motor is %f\n",motor,"t is %f\n",t);
     cServo.write(motor);
+    //delay(1000);
+    
+   
     
     
     //noteTimer.isTimerReady();
@@ -57,6 +67,10 @@ void loop() {
   else{
     noTone(BUZZPIN);
   }
+//t=t;
+Serial.printf("end motor is %f\n",motor,"t is %f\n",t);
+delay(1000);
+
   //*/
   //cServo.write(90);
 
