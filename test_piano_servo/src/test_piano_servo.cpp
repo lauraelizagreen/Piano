@@ -17,7 +17,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
 const int PHOTODIODEONE=A0;
-const int SERVPIN=A2;//has to be PWM
+const int SERVPIN=A2;//D15;//has to be PWM 
 const int BUZZPIN= D16;//PWM
 const int CNOTE=131;//freq for C 
 int lightLevelOne;
@@ -44,15 +44,17 @@ t=millis()/1000.0;
 //motor=180.0; //then sin wave added to wherever in cycle left off? .00 bc float?
 startPos=0;
 }
-void loop() {
-///*
+void loop(){
+
+
+/*
   lightLevelOne=analogRead(PHOTODIODEONE);
   Serial.printf("Light level one is %i\n",lightLevelOne);
 
   if(lightLevelOne>100) {
     //t=t+(millis()/ 1000.0); //to get current time converted to seconds use decimal since it's a float
     //motor=((180/2.0)* sin(2 * M_PI * .1 * t)+(startPos/2.0));//A(amplitude=height of wave from midpoint) *sin(2pi * v(freq) * t(current time in sec) + B(offset from 0))
-    motor=((180/2.0)* sin(2 * M_PI * .1 * t)+90);
+    motor=((180/2.0)* sin(2 * M_PI * .1 * t)+90);//voltage stays around 1.6, shouldn't it change as it oscillates?
     //Serial.printf("motor is %f\n",motor,"start position is %f\n",startPos);
     Serial.printf("motor is %f\n",motor,"t is %f\n",t);
     cServo.write(motor);
@@ -71,8 +73,9 @@ void loop() {
 Serial.printf("end motor is %f\n",motor,"t is %f\n",t);
 delay(1000);
 
-  //*/
-  //cServo.write(90);
+  */
+  cServo.write(180);// 30=.03 A,60=.09,90=.14;180=.3A why so low? is this the problem?
+}
 
   
-}
+

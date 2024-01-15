@@ -29,7 +29,7 @@ const int PHOTODIODEONE=A0;
 const int PHOTODIODETWO=A1;
 const int PHOTODIODETHREE=A2;
 const int PHOTODIODEFOUR=A5;
-const int SERVPIN=A2;//has to be PWM
+const int SERVPIN=D15;//has to be PWM
 const int BUZZPIN= D16;//PWM
 //thresholds and delay times
 const int NOTELEVEL=50;//how much light photodiode has to have to trigger hue light
@@ -155,13 +155,13 @@ if(onOff==TRUE){
   Serial.printf("Light level two is %i\n",lightLevelTwo);
   Serial.printf("Light level three is %i\n",lightLevelThree);
   Serial.printf("Light level four is %i\n",lightLevelFour);
-  
+  //1 only = C yellow
   if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
     setHue(BULB,true,HueYellow,50,255);
     //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
-    t=millis()/1000.0; //to get current time
-    motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
-    cServo.write(motor);
+    //t=millis()/1000.0; //to get current time
+    //motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
+    //cServo.write(motor);
     //noteTimer.isTimerReady();
     tone(BUZZPIN,CNOTE);//timing? just as long as exposed to light?
     //delay(DURATION+1000);//may not need
@@ -171,20 +171,44 @@ if(onOff==TRUE){
   setHue(BULB,false);
   noTone(BUZZPIN);//??
   }
-  
-  if(lightLevelTwo>NOTELEVEL) {
+  //2 only=D indigo
+  if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)) {
+    setHue(BULB,true,HueIndigo,50,255);
     tone(BUZZPIN,DNOTE);
   }
-  if(lightLevelThree>NOTELEVEL) {
+  //3 only=E orange
+  if((lightLevelOne<NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour<NOTELEVEL)) {
+    setHue(BULB,true,HueOrange,50,255);
     tone(BUZZPIN,ENOTE);
   }
-  
-  if(lightLevelFour>NOTELEVEL) {
+  //4 only=F green
+  if((lightLevelOne<NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
+    setHue(BULB,true,HueGreen,50,255);
     tone(BUZZPIN,FNOTE);
   }
-  
+  //1 and 2=G violet
+  if((lightLevelOne>NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
+  setHue(BULB,true,HueViolet,50,255);
+  tone(BUZZPIN,GNOTE);
+}
+//1 and 3=A red
+if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
+  setHue(BULB,true,HueRed,50,255);
+    tone(BUZZPIN,ANOTE);
+}
+//1 and 4 =B Blue
+if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour>NOTELEVEL)){
+  setHue(BULB,true,HueBlue,50,255);
+    tone(BUZZPIN,BNOTE);
+}
+//2 and 4=Hi C yellow
+if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
+   setHue(BULB,true,HueYellow,50,255);
+    tone(BUZZPIN,HICNOTE);
+}
+
   //if(lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL) {
-    //wemoWrite(WEMO1,TRUE);
+    //wemoWrite(WEMO1,TRUE);//wemo with fan and chimes
   //}
  // else {
    // wemoWrite(WEMO2,FALSE);
