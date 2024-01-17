@@ -18,8 +18,8 @@
 
 
 
-SYSTEM_MODE(MANUAL);//enable for room control web connection
-//SYSTEM_MODE(SEMI_AUTOMATIC);
+//SYSTEM_MODE(MANUAL);//enable for room control web connection
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 
 SYSTEM_THREAD(ENABLED);
@@ -32,7 +32,7 @@ const int XPOS=0;
 const int  YPOS=1;
 const int DELTAY=2;
 
-const int WEMOLIGHT=5;//spotlight 
+const int WEMOLIGHT=5;//spotlight on my desk
 const int WEMOFAN=4;//fan WEMO4 (across room) for now
 const int BULB=2;//hue bulb at my desk
 const int PHOTODIODEONE=A0;
@@ -41,11 +41,14 @@ const int PHOTODIODETHREE=A2;
 const int PHOTODIODEFOUR=A5;
 const int SERVPIN=D15;//has to be PWM
 const int BUZZPIN= D16;//PWM
-//thresholds and delay times
+
 const int NOTELEVEL=50;//how much light photodiode has to have to trigger hue light
+/*DONT NEED THESE FOR NOW
+//thresholds and delay times
 const int NOTEDELAY=2000;//will need to be varied, so maybe later not constant? how long light stays on
 const int DURATION=1000;//also may need to be varied-how long note plays, same as delay, so could be same variable
 const int PIXELCOUNT=1;//use one neopixel to check hue light when not at FUSE and neopixel for on/off indicator light
+*/
 //declare all note frequencies: notes could be h file later? or use pitch.h
 const int CNOTE=131;//freq for C 
 const int DNOTE=147;//freq for D
@@ -75,14 +78,15 @@ int lightLevelThree;
 int lightLevelFour;
 int hueColor;//hue light color
 int playNote;
-unsigned int timerStart, currentTime;//unsigned saves memory space
+unsigned int lastSecond, currentTime;//unsigned saves memory space only positive --undefined starts at )?
 float motor;
 float t;
 
 //int cBState;//not necessary with h file ?
 bool onOff;
-Adafruit_SSD1306 display(OLED_RESET);
+
 //create all objects: servo, timers, neopixel, buttons...
+Adafruit_SSD1306 display(OLED_RESET);
 Servo cServo;//create object ...servo class built into photon library
 //Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);///SPI1 is D2
 Button hicButton(HICBUTTON);
@@ -94,15 +98,15 @@ Button eButton(EBUTTON);
 Button dButton(DBUTTON);
 Button cButton(CBUTTON);
 Button encSwitch(ENCSWITCH);//false for internal pull-down (not pull-up)
-IoTTimer noteTimer;
-IoTTimer btwNoteTimer;
+//IoTTimer noteTimer;
+//IoTTimer btwNoteTimer;
 
 
 void setup() {
   Serial.begin(9600); //serial port
   waitFor(Serial.isConnected,10000);
 
- // /*
+  /*
   WiFi.on();  //comment out this section when not at FUSE
   WiFi.clearCredentials();
   WiFi.setCredentials("IoTNetwork");
@@ -112,7 +116,7 @@ void setup() {
     Serial.printf(".");
   }  
   Serial.printf("\n\n");
-  //*/
+  */
 //OLED initialization
 display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with 12C address----not sure I understand this....??
 void setRotation(uint8_t rotation);//how to use this to flip?
@@ -140,7 +144,7 @@ pixel.show();
  
 //tone(BUZZPIN,FNOTE);//just to test buzzer
 digitalWrite(GREENLED,onOff);//not sure if I need this
-wemoWrite(WEMOLIGHT,TRUE);
+//wemoWrite(WEMOLIGHT,TRUE);
 wemoWrite(WEMOFAN,FALSE);
 playNote=0;
 onOff=TRUE;
@@ -162,25 +166,34 @@ void loop() {
   //still add turning switch red/green? 
 //Serial.printf("onOff=%i\n",onOff);//un-comment to check
 if(onOff==TRUE){
-  wemoWrite(WEMOLIGHT,onOff);spotlight on
+  wemoWrite(WEMOLIGHT,onOff);//spotlight on
    display.clearDisplay();
-  display.setTextSize(3);//
+  display.setTextSize(2);//
   display.setTextColor(WHITE);
   display.setCursor(0,5);
   //display.printf("%c\n",threeBlindMice[0]); //song lyrics here "three blind mice"? make into array and loop through with each note
   display.printf("AUTOMATIC");
   //display.startscrollright(0x00, 0x0F);
   display.display();
+//FOR FAN AND CHIMES EVERY 30 SECONDS
+/*
+wemoWrite(WEMOFAN,TRUE);
+currentTime=millis();
+  if((currentTime-lastSecond)>30000) {//isn't lastSecond undefined at this point???  or is an undefined variable set at 0? (would 0 be same as millis?)
+  wemoWrite(WEMOFAN,FALSE);
+    lastSecond=millis();
+  }
+  */
   
   
   //////FOR AUTO MODE WITH SCROLL
   playNote=0;
-  setHue(BULB,false); //light off
+  //setHue(BULB,false); //light off
 
   //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
-    //t=millis()/1000.0; //to get current time
-   // motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
-    //cServo.write(motor);
+    t=millis()/1000.0; //to get current time
+    motor=(180/2)* sin(2 * M_PI * .1 * t)+(180/2);
+    cServo.write(motor);
    
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
   lightLevelTwo=analogRead(PHOTODIODETWO);
@@ -235,15 +248,15 @@ if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTE
 }
 if(playNote!=0) {
 tone(BUZZPIN,playNote); //or comment out for color only play :)
-setHue(BULB,true,hueColor,50,255);//comment out if auto mode too slow
+//setHue(BULB,true,hueColor,50,255);//comment out if auto mode too slow
 }
 else {
   noTone(BUZZPIN);
-  setHue(BULB,false);
+  //setHue(BULB,false);
 
 }
 
-
+/////if all photodiodes > NOTELEVEL FAN ON (CHIMES) maybe simplify this condition....?
 /*
   if((lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
     wemoWrite(WEMOFAN,TRUE);//wemo with fan and chimes
@@ -255,6 +268,8 @@ else {
 }
 
 else {
+  //wemoWrite(WEMOLIGHT,FALSE);
+  //wemoWrite(WEMOFAN,FALSE);
   
   /////FOR MANUAL MODE PRESSING PIANO KEYS
    display.clearDisplay();
@@ -267,27 +282,21 @@ else {
 playNote=0;
 //setHue(BULB,false); //light off
 
-  
+//assignments for all 8 buttons (notes and colors)  
 if(hicButton.isPressed()) {
    playNote=HICNOTE;
    hueColor=HueYellow;
    }
-  
   
 if(bButton.isPressed())  {//with pull-down resistor 10kohms >2vreads high  <0.8 reads low  avoid in-btw
   playNote=BNOTE;
   hueColor=HueBlue;
 }
 
-  
-  
-
 if(aButton.isPressed())  {
   playNote=ANOTE;
   hueColor=HueRed;
   }
-  
-  
   
 if(gButton.isPressed())  {
    playNote=GNOTE;
@@ -300,35 +309,29 @@ if(fButton.isPressed())  {
   hueColor=HueGreen;
   }
   
-  
-  
 if(eButton.isPressed())  {
   playNote=ENOTE;
   hueColor=HueOrange;
   }
-  
-  
   
 if(dButton.isPressed())  {
   playNote=DNOTE;
   hueColor=HueIndigo;
   }
   
-  
-  
 if(cButton.isPressed())  {
    playNote=CNOTE;
    hueColor=HueYellow;
   }
-  
-  if(playNote!=0) {
+ //play what note is defined as if note has been defined 
+if(playNote!=0) {
     Serial.printf("tone=%i\n",playNote);
   tone(BUZZPIN,playNote);
-  setHue(BULB,true,hueColor,50,255);//comment out this line if manual mode too slow
+  //setHue(BULB,true,hueColor,50,255);//comment out this line if manual mode too slow
   }
   else {
   noTone(BUZZPIN);
-  setHue(BULB,false);
+  //setHue(BULB,false);
   }
 }
 }
