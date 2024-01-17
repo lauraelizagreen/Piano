@@ -17,7 +17,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
 const int PHOTODIODEONE=A0;
-const int SERVPIN=A2;//D15;//has to be PWM 
+const int SERVPIN=D15;////has to be PWM 
 const int BUZZPIN= D16;//PWM
 const int CNOTE=131;//freq for C 
 int lightLevelOne;
@@ -74,7 +74,10 @@ Serial.printf("end motor is %f\n",motor,"t is %f\n",t);
 delay(1000);
 
   */
-  cServo.write(180);// 30=.03 A,60=.09,90=.14;180=.3A why so low? is this the problem?
+  cServo.write(180);// 30=.03 A,60=.09,90=.14;180=.3A why so low? is this the problem?  also low at A2
+  delay(1000);
+  cServo.write(0);
+  delay(1000);
 }
 
   

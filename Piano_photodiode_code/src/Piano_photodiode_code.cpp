@@ -10,18 +10,28 @@
 #include "Particle.h"
 #include "math.h"
 #include "IoTClassroom_CNM.h"
+#include "Adafruit_GFX.h"//order matters
+#include "Adafruit_SSD1306.h"
 //#include <neopixel.h>
 
 
 
 
 
-//SYSTEM_MODE(MANUAL);//enable for room control web connection
-SYSTEM_MODE(SEMI_AUTOMATIC);
+SYSTEM_MODE(MANUAL);//enable for room control web connection
+//SYSTEM_MODE(SEMI_AUTOMATIC);
 
 
 SYSTEM_THREAD(ENABLED);
 //declare component pins
+const int OLED_RESET=-1;
+
+
+const int NUMFLAKES=10;//like const (datatype=int?) NUMFLAKES=10; what is this constant?
+const int XPOS=0; 
+const int  YPOS=1;
+const int DELTAY=2;
+
 const int WEMOLIGHT=5;//spotlight 
 const int WEMOFAN=4;//fan WEMO4 (across room) for now
 const int BULB=2;//hue bulb at my desk
@@ -58,6 +68,7 @@ const int ENCSWITCH=D19;
 const int GREENLED=D18;//light on encoder
 //const int REDLED=D16;//not enough pins?
 
+
 int lightLevelOne;//photodiode 1-4
 int lightLevelTwo;
 int lightLevelThree;
@@ -70,6 +81,7 @@ float t;
 
 //int cBState;//not necessary with h file ?
 bool onOff;
+Adafruit_SSD1306 display(OLED_RESET);
 //create all objects: servo, timers, neopixel, buttons...
 Servo cServo;//create object ...servo class built into photon library
 //Adafruit_NeoPixel pixel(PIXELCOUNT, SPI1, WS2812B);///SPI1 is D2
@@ -88,9 +100,9 @@ IoTTimer btwNoteTimer;
 
 void setup() {
   Serial.begin(9600); //serial port
-  waitFor(Serial.isConnected,15000);
+  waitFor(Serial.isConnected,10000);
 
-  /*
+ // /*
   WiFi.on();  //comment out this section when not at FUSE
   WiFi.clearCredentials();
   WiFi.setCredentials("IoTNetwork");
@@ -100,7 +112,12 @@ void setup() {
     Serial.printf(".");
   }  
   Serial.printf("\n\n");
-  */
+  //*/
+//OLED initialization
+display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with 12C address----not sure I understand this....??
+void setRotation(uint8_t rotation);//how to use this to flip?
+display.clearDisplay();   // clears the screen and buffer
+display.display();
   //pinMode(BBUTTON,INPUT);//to test if still voltage at pin D2
   
 
@@ -141,13 +158,30 @@ void loop() {
 
   }
   digitalWrite(GREENLED,onOff);//low turns on (connects to ground to complete circuit)
-  wemoWrite(WEMOLIGHT,onOff);//still add turning switch red/green? spotlight on
+
+  //still add turning switch red/green? 
 //Serial.printf("onOff=%i\n",onOff);//un-comment to check
 if(onOff==TRUE){
+  wemoWrite(WEMOLIGHT,onOff);spotlight on
+   display.clearDisplay();
+  display.setTextSize(3);//
+  display.setTextColor(WHITE);
+  display.setCursor(0,5);
+  //display.printf("%c\n",threeBlindMice[0]); //song lyrics here "three blind mice"? make into array and loop through with each note
+  display.printf("AUTOMATIC");
+  //display.startscrollright(0x00, 0x0F);
+  display.display();
+  
   
   //////FOR AUTO MODE WITH SCROLL
   playNote=0;
   setHue(BULB,false); //light off
+
+  //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
+    //t=millis()/1000.0; //to get current time
+   // motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
+    //cServo.write(motor);
+   
   lightLevelOne=analogRead(PHOTODIODEONE); //read diodes through hole of scroll
   lightLevelTwo=analogRead(PHOTODIODETWO);
   lightLevelThree=analogRead(PHOTODIODETHREE);
@@ -162,13 +196,6 @@ if(onOff==TRUE){
   if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
       hueColor=HueYellow;
       playNote=CNOTE;
-    //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
-    //t=millis()/1000.0; //to get current time
-    //motor=(180/2)* sin(2 * M_PI * .2 * t)+(180/2);
-    //cServo.write(motor);
-   
-   
-   
   }
   
   //2 only=D indigo
@@ -208,27 +235,37 @@ if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTE
 }
 if(playNote!=0) {
 tone(BUZZPIN,playNote); //or comment out for color only play :)
-//setHue(BULB,true,hueColor,50,255);//comment out if auto mode too slow
+setHue(BULB,true,hueColor,50,255);//comment out if auto mode too slow
 }
 else {
   noTone(BUZZPIN);
-  //setHue(BULB,false);
+  setHue(BULB,false);
 
 }
 
+
+/*
   if((lightLevelOne>NOTELEVEL)&&(lightLevelTwo>NOTELEVEL)&&(lightLevelThree>NOTELEVEL)&&(lightLevelFour>NOTELEVEL)) {
     wemoWrite(WEMOFAN,TRUE);//wemo with fan and chimes
   }
   else {
     wemoWrite(WEMOFAN,FALSE);
   }
+  */
 }
 
 else {
   
   /////FOR MANUAL MODE PRESSING PIANO KEYS
+   display.clearDisplay();
+  display.setTextSize(3);//
+  display.setTextColor(WHITE);
+  display.setCursor(0,5);
+  display.printf("MANUAL MODE");
+  display.display();
+
 playNote=0;
-setHue(BULB,false); //light off
+//setHue(BULB,false); //light off
 
   
 if(hicButton.isPressed()) {
