@@ -15,23 +15,17 @@
 //#include <neopixel.h>
 
 
+SYSTEM_MODE(MANUAL);//enable for room control web connection
+//SYSTEM_MODE(SEMI_AUTOMATIC);
 
 
-
-//SYSTEM_MODE(MANUAL);//enable for room control web connection
-SYSTEM_MODE(SEMI_AUTOMATIC);
-
-
-SYSTEM_THREAD(ENABLED);
+//SYSTEM_THREAD(ENABLED);
 //declare component pins
 const int OLED_RESET=-1;
-
-
 const int NUMFLAKES=10;//like const (datatype=int?) NUMFLAKES=10; what is this constant?
 const int XPOS=0; 
-const int  YPOS=1;
+const int YPOS=1;
 const int DELTAY=2;
-
 const int WEMOLIGHT=5;//spotlight on my desk
 const int WEMOFAN=4;//fan WEMO4 (across room) for now
 const int BULB=2;//hue bulb at my desk
@@ -42,7 +36,7 @@ const int PHOTODIODEFOUR=A5;
 const int SERVPIN=D15;//has to be PWM
 const int BUZZPIN= D16;//PWM
 
-const int NOTELEVEL=50;//how much light photodiode has to have to trigger hue light
+const int NOTELEVEL=800;//how much light photodiode has to have to trigger hue light
 /*DONT NEED THESE FOR NOW
 //thresholds and delay times
 const int NOTEDELAY=2000;//will need to be varied, so maybe later not constant? how long light stays on
@@ -98,7 +92,7 @@ Button eButton(EBUTTON);
 Button dButton(DBUTTON);
 Button cButton(CBUTTON);
 Button encSwitch(ENCSWITCH);//false for internal pull-down (not pull-up)
-//IoTTimer noteTimer;
+IoTTimer chimeTimer;
 //IoTTimer btwNoteTimer;
 
 
@@ -106,7 +100,7 @@ void setup() {
   Serial.begin(9600); //serial port
   waitFor(Serial.isConnected,10000);
 
-  /*
+  ///*
   WiFi.on();  //comment out this section when not at FUSE
   WiFi.clearCredentials();
   WiFi.setCredentials("IoTNetwork");
@@ -116,7 +110,7 @@ void setup() {
     Serial.printf(".");
   }  
   Serial.printf("\n\n");
-  */
+  //*/
 //OLED initialization
 display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with 12C address----not sure I understand this....??
 void setRotation(uint8_t rotation);//how to use this to flip?
@@ -144,10 +138,10 @@ pixel.show();
  
 //tone(BUZZPIN,FNOTE);//just to test buzzer
 digitalWrite(GREENLED,onOff);//not sure if I need this
-//wemoWrite(WEMOLIGHT,TRUE);
+wemoWrite(WEMOLIGHT,FALSE);
 wemoWrite(WEMOFAN,FALSE);
 playNote=0;
-onOff=TRUE;
+
 
 
 
@@ -165,8 +159,14 @@ void loop() {
 
   //still add turning switch red/green? 
 //Serial.printf("onOff=%i\n",onOff);//un-comment to check
+
+//////FOR AUTO MODE WITH SCROLL
 if(onOff==TRUE){
-  wemoWrite(WEMOLIGHT,onOff);//spotlight on
+  
+  playNote=0;
+
+  //setHue(BULB,false); //light off
+  wemoWrite(WEMOLIGHT,TRUE);//spotlight on
    display.clearDisplay();
   display.setTextSize(2);//
   display.setTextColor(WHITE);
@@ -176,20 +176,23 @@ if(onOff==TRUE){
   //display.startscrollright(0x00, 0x0F);
   display.display();
 //FOR FAN AND CHIMES EVERY 30 SECONDS
-/*
-wemoWrite(WEMOFAN,TRUE);
-currentTime=millis();
-  if((currentTime-lastSecond)>30000) {//isn't lastSecond undefined at this point???  or is an undefined variable set at 0? (would 0 be same as millis?)
-  wemoWrite(WEMOFAN,FALSE);
-    lastSecond=millis();
-  }
-  */
-  
-  
-  //////FOR AUTO MODE WITH SCROLL
-  playNote=0;
-  //setHue(BULB,false); //light off
+///*
+chimeTimer.startTimer(10000);
+if(chimeTimer.isTimerReady()) {
+  wemoWrite(WEMOFAN,TRUE);
+}
 
+   chimeTimer.startTimer(3000);
+   if(chimeTimer.isTimerReady()) {
+    wemoWrite(WEMOFAN,FALSE);
+   }
+   /*
+  if((currentTime-lastSecond)>30000) {//isn't lastSecond undefined at this point???  or is an undefined variable set at 0? (would 0 be same as millis?)
+      wemoWrite(WEMOFAN,FALSE);
+      lastSecond=0;
+ }
+*/
+  
   //cServo.write(90);//0-200 degrees  maybe will need supplemental power and how long will it take? maybe set as sin wave for piano key movement
     t=millis()/1000.0; //to get current time
     motor=(180/2)* sin(2 * M_PI * .1 * t)+(180/2);
@@ -205,6 +208,8 @@ currentTime=millis();
   Serial.printf("Light level three is %i\n",lightLevelThree);
   Serial.printf("Light level four is %i\n",lightLevelFour);
   //*/
+
+  ///*
   //1 only = C yellow
   if((lightLevelOne>NOTELEVEL) && (lightLevelTwo<NOTELEVEL)&&(lightLevelThree<NOTELEVEL)&&(lightLevelFour<NOTELEVEL)){
       hueColor=HueYellow;
@@ -246,13 +251,22 @@ if((lightLevelOne<NOTELEVEL) && (lightLevelTwo>NOTELEVEL)&&(lightLevelThree<NOTE
    hueColor=HueYellow;
     playNote=HICNOTE;
 }
+//*/
+
+/////TRY SIMPLER
+/*
+if(lightLevelOne>NOTELEVEL) {
+  hueColor=HueYellow;
+  playNote=CNOTE;
+}
+*/
 if(playNote!=0) {
 tone(BUZZPIN,playNote); //or comment out for color only play :)
-//setHue(BULB,true,hueColor,50,255);//comment out if auto mode too slow
+setHue(BULB,true,hueColor,50,255);//comment out if auto mode too slow
 }
 else {
   noTone(BUZZPIN);
-  //setHue(BULB,false);
+  setHue(BULB,false);
 
 }
 
@@ -266,12 +280,13 @@ else {
   }
   */
 }
-
+/////FOR MANUAL MODE PRESSING PIANO KEYS
 else {
-  //wemoWrite(WEMOLIGHT,FALSE);
-  //wemoWrite(WEMOFAN,FALSE);
+  wemoWrite(WEMOLIGHT,FALSE);
+  wemoWrite(WEMOFAN,FALSE);
+  playNote=0;
   
-  /////FOR MANUAL MODE PRESSING PIANO KEYS
+  
    display.clearDisplay();
   display.setTextSize(3);//
   display.setTextColor(WHITE);
@@ -280,7 +295,7 @@ else {
   display.display();
 
 playNote=0;
-//setHue(BULB,false); //light off
+setHue(BULB,false); //light off
 
 //assignments for all 8 buttons (notes and colors)  
 if(hicButton.isPressed()) {
@@ -327,11 +342,11 @@ if(cButton.isPressed())  {
 if(playNote!=0) {
     Serial.printf("tone=%i\n",playNote);
   tone(BUZZPIN,playNote);
-  //setHue(BULB,true,hueColor,50,255);//comment out this line if manual mode too slow
+  setHue(BULB,true,hueColor,50,255);//comment out this line if manual mode too slow
   }
   else {
   noTone(BUZZPIN);
-  //setHue(BULB,false);
+  setHue(BULB,false);
   }
 }
 }
