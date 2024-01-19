@@ -100,7 +100,7 @@ void setup() {
   Serial.begin(9600); //serial port
   waitFor(Serial.isConnected,10000);
 
-  ///*
+ // /*
   WiFi.on();  //comment out this section when not at FUSE
   WiFi.clearCredentials();
   WiFi.setCredentials("IoTNetwork");
