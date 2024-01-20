@@ -27,7 +27,7 @@ const int XPOS=0;
 const int YPOS=1;
 const int DELTAY=2;
 const int WEMOLIGHT=5;//spotlight on my desk
-const int WEMOFAN=4;//fan WEMO4 (across room) for now
+const int WEMOFAN=1;//fan WEMO4 (across room) for now
 const int BULB=2;//hue bulb at my desk
 const int PHOTODIODEONE=A0;
 const int PHOTODIODETWO=A1;
@@ -36,7 +36,7 @@ const int PHOTODIODEFOUR=A5;
 const int SERVPIN=D15;//has to be PWM
 const int BUZZPIN= D16;//PWM
 
-const int NOTELEVEL=800;//how much light photodiode has to have to trigger hue light
+const int NOTELEVEL=200;//how much light photodiode has to have to trigger hue light
 /*DONT NEED THESE FOR NOW
 //thresholds and delay times
 const int NOTEDELAY=2000;//will need to be varied, so maybe later not constant? how long light stays on
